@@ -411,19 +411,18 @@
     // ATENÇÃO: Se o nome do seu projeto for 'Jogos EEJAM', o projectId abaixo deve ser 'jogos-eejam'.
     // Use as chaves COMPLETAS geradas pelo seu console Firebase para garantir a conexão.
     const firebaseConfig = {
-        // SUAS CHAVES ATUAIS QUE VOCÊ COLOCOU:
-        apiKey: "AIzaSyBhZWLKRLPyE3WD8Y7b8iLKE9UCBCkFt1I",
-        authDomain: "jogos-ee.firebaseapp.com",
-        projectId: "jogos-ee",
-        storageBucket: "jogos-ee.firebasestorage.app",
-        messagingSenderId: "297191024035",
-        appId: "1:297191024035:web:f917816f51d4545355a616",
-        measurementId: "G-ZQTCEVM39C"
-    };
+    apiKey: "AIzaSyCRakqwGgSmxCSYH1MDxexhwQQYov3hJ-M",
+    authDomain: "interclasse-4b24b.firebaseapp.com",
+    projectId: "interclasse-4b24b",
+    storageBucket: "interclasse-4b24b.firebasestorage.app",
+    messagingSenderId: "730939186397",
+    appId: "1:730939186397:web:c6b4ede1ab3a0f1a24cf34",
+    measurementId: "G-PBB7FQHY6F"
+  };
 
-    // Inicialização do Firebase Firestore (bd)
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
 
     // =========================================================
     // === VARIÁVEIS E ESTRUTURAS DE DADOS =====================
@@ -1097,4 +1096,5 @@
     window.validateScoreInput = validateScoreInput;
 </script>
 </body>
+
 </html>
