@@ -498,18 +498,19 @@
   <script>
     // 1. CONFIGURAÇÃO E INICIALIZAÇÃO DO FIREBASE (CORRIGIDO)
     const firebaseConfig = {
-      // USANDO AS CHAVES QUE VOCÊ FORNECEU PARA O PROJETO 'jogos-ee'
-      apiKey: "AIzaSyBhZWLKRLPyE3WD8Y7b8iLKE9UCBCkFt1I",
-      authDomain: "jogos-ee.firebaseapp.com",
-      projectId: "jogos-ee",
-      storageBucket: "jogos-ee.firebasestorage.app",
-      messagingSenderId: "297191024035",
-      appId: "1:297191024035:web:f917816f51d4545355a616",
-      measurementId: "G-ZQTCEVM39C"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    apiKey: "AIzaSyCRakqwGgSmxCSYH1MDxexhwQQYov3hJ-M",
+    authDomain: "interclasse-4b24b.firebaseapp.com",
+    projectId: "interclasse-4b24b",
+    storageBucket: "interclasse-4b24b.firebasestorage.app",
+    messagingSenderId: "730939186397",
+    appId: "1:730939186397:web:c6b4ede1ab3a0f1a24cf34",
+    measurementId: "G-PBB7FQHY6F"
+  };
 
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+   
     // 2. VARIÁVEIS E CONFIGURAÇÕES
     const STORAGE_KEY = 'jogos-ee_backup'; 
     const CONFIG = {
@@ -782,4 +783,5 @@
     window.addEventListener('load', initApp);
   </script>
 </body>
+
 </html>
