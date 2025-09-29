@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - Jogos Escolares 2025</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    
+    <style>
+        /* * CSS Embutido (Unificado) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f8fb;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* CABEÇALHO E NAVEGAÇÃO */
+        header {
+            background-color: #8fd2ff;
+            color: #0055a5;
+            padding: 20px 0;
+            text-align: center;
+        }
+        
+        header img { margin-top: 10px; }
+
+        .menu {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            background-color: #45a8e0;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 15px auto;
+            max-width: 900px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .menu li { margin: 8px 15px; }
+
+        .menu a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 10px 15px;
+            border-radius: 4px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .menu a:hover {
+            background-color: #2c8ec6;
+            transform: scale(1.05);
+        }
+
+        /* RODAPÉ (FOOTER) */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: white; 
+            margin-top: 40px;
+            background-color: #45a8e0; 
+        }
+
+        /* LOGIN E MAIN */
+        main {
+            padding: 30px 20px;
+            max-width: 1000px;
+            margin: auto;
+            flex: 1;
+            width: 100%;
+        }
+
+        .login-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .login-form input {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            width: 100%;
+        }
+
+        .login-form button {
+            background-color: #4299e1;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.05em;
+            transition: background-color 0.3s;
+        }
+
+        .login-form button:hover {
+            background-color: #3182ce;
+        }
+
+        /* TABS (NOVA NAVEGAÇÃO INTERNA) */
+        .admin-content {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .tabs button {
+            background: #e2e8f0;
+            border: none;
+            padding: 15px 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+            border-bottom: 3px solid transparent;
+            font-weight: 600;
+        }
+
+        .tabs button.active {
+            background-color: #fff;
+            border-bottom: 3px solid #4299e1;
+            color: #4299e1;
+        }
+
+        /* FORMULÁRIO GERAL */
+        .form-section {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        input[type="number"],
+        input[type="text"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        .action-buttons button {
+            width: auto;
+            margin-right: 10px;
+        }
+
+        /* ESTILOS DE GERENCIAMENTO (LISTAS) */
+        .management-list h3 {
+            border-bottom: 2px solid #4299e1;
+            padding-bottom: 10px;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+        
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f7fafc;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: background-color 0.2s;
+        }
+        
+        .list-item:hover { background-color: #edf2f7; }
+        
+        .item-details { flex-grow: 1; padding-right: 20px; }
+        
+        .item-details strong {
+            display: block;
+            font-size: 1.1em;
+            color: #007acc;
+            margin-bottom: 4px;
+        }
+        
+        .item-details span { font-size: 0.9em; color: #718096; }
+
+        .item-actions button {
+            padding: 8px 15px;
+            margin-left: 8px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-edit { background-color: #48bb78; color: white; }
+        .btn-delete { background-color: #f56565; color: white; }
+
+        /* ALERTAS */
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            display: none;
+        }
+        .alert.show { display: block; }
+        .success-alert { background-color: #c6f6d5; color: #22543d; border: 1px solid #68d391; }
+        .error-alert { background-color: #fed7d7; color: #9b2c2c; border: 1px solid #f56565; }
+
+        /* RESPONSIVIDADE */
+        @media (max-width: 768px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .list-item { flex-direction: column; align-items: flex-start; }
+            .item-details { margin-bottom: 10px; padding-right: 0; }
+            .item-actions { width: 100%; text-align: right; }
+            .item-actions button { margin-left: 0; margin-right: 5px; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <img src="logo.png" alt="Logo do Evento" width="400"/>
+        <nav>
+            <ul class="menu">
+                <li><a href="index.html">Página inicial</a></li>
+                <li><a href="cronograma.html">Cronograma</a></li>
+                <li><a href="placar.html">Placar</a></li>
+                <li><a href="turmas.html">Turmas</a></li>
+                <li><a href="galeria.html">Galeria</a></li>
+                <li><a href="noticias.html">Notícias</a></li>
+                <li><a href="admin.html">Admin</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div id="login-screen" class="login-container">
+            <h2>🔒 Login de Administrador</h2>
+            <div id="error-alert" class="alert error-alert"></div>
+            <div class="login-form">
+                <input type="password" id="admin-password" placeholder="Digite a senha" onkeypress="handleLoginKeyPress(event)">
+                <button onclick="login()">Entrar</button>
+            </div>
+        </div>
+
+        <div id="admin-panel" class="admin-content">
+            <h1 style="text-align: center; color: #4299e1;">Painel de Administração</h1>
+            <div id="success-alert" class="alert success-alert"></div>
+            
+            <div class="tabs">
+                <button class="tab-button active" onclick="showTab('add-result-tab', this)">➕ Novo Resultado</button>
+                <button class="tab-button" onclick="showTab('manage-results-tab', this)">🏆 Gerenciar Partidas</button>
+                <button class="tab-button" onclick="showTab('manage-news-tab', this)">📰 Gerenciar Notícias</button>
+            </div>
+
+            <div id="add-result-tab" class="tab-content">
+                <div class="form-section">
+                    <h2>Cadastrar Nova Partida</h2>
+                    <p style="color: #4a5568; margin-bottom: 10px; font-size: 0.9em; text-align: center;">Para **editar** um resultado, vá em "Gerenciar Partidas", clique em editar e salve a correção.</p>
+                    <div class="form-grid">
+                        <div>
+                            <label for="categoria-select">Categoria:</label>
+                            <select id="categoria-select" onchange="updateTeamOptions()"></select>
+                        </div>
+                        <div>
+                            <label for="tipo-partida">Modalidade:</label>
+                            <input type="text" id="tipo-partida" value="" disabled>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="time-input">
+                            <label for="timeA-select">Time A:</label>
+                            <select id="timeA-select"></select>
+                            <input type="number" id="pontosA" placeholder="Pontos (Gols/Cestas)" min="0" value="0" oninput="validateScoreInput(this)">
+                        </div>
+                        <div class="time-input">
+                            <label for="timeB-select">Time B:</label>
+                            <select id="timeB-select"></select>
+                            <input type="number" id="pontosB" placeholder="Pontos (Gols/Cestas)" min="0" value="0" oninput="validateScoreInput(this)">
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="cartoes">
+                            <label for="amarelosA">Cartões Amarelos (Time A):</label>
+                            <input type="number" id="amarelosA" min="0" value="0">
+                        </div>
+                        <div class="cartoes">
+                            <label for="amarelosB">Cartões Amarelos (Time B):</label>
+                            <input type="number" id="amarelosB" min="0" value="0">
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="cartoes">
+                            <label for="vermelhosA">Cartões Vermelhos (Time A):</label>
+                            <input type="number" id="vermelhosA" min="0" value="0">
+                        </div>
+                        <div class="cartoes">
+                            <label for="vermelhosB">Cartões Vermelhos (Time B):</label>
+                            <input type="number" id="vermelhosB" min="0" value="0">
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons full-width" style="text-align: center;">
+                        <button id="register-match-btn" onclick="addResult()">Registrar Partida</button>
+                        <button id="save-edit-btn" style="display:none; background-color: #3182ce;" onclick="saveEditedMatch()">Salvar Edição</button>
+                        <button onclick="clearForm()" style="background-color: #718096;">Limpar Formulário</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="manage-results-tab" class="tab-content" style="display: none;">
+                <div class="management-list">
+                    <h3>Histórico de Partidas Cadastradas</h3>
+                    <div id="match-history-list">
+                        <p style="text-align: center; color: #718096;">Carregando histórico...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="manage-news-tab" class="tab-content" style="display: none;">
+                
+                <div class="form-section">
+                    <h2>Publicar Nova Notícia / Aviso</h2>
+                    <div class="full-width">
+                        <label for="news-type">Tipo de Publicação:</label>
+                        <select id="news-type">
+                            <option value="noticia">Notícia (Destaque/Resumo)</option>
+                            <option value="aviso">Aviso (Importante/Urgente)</option>
+                        </select>
+                    </div>
+                    <div class="full-width">
+                        <label for="news-content">Conteúdo:</label>
+                        <textarea id="news-content" rows="4" placeholder="Digite o conteúdo da notícia ou aviso."></textarea>
+                    </div>
+                    <div class="action-buttons full-width" style="text-align: center;">
+                        <button onclick="publishNews()">Publicar</button>
+                    </div>
+                </div>
+
+                <div class="management-list">
+                    <h3>Notícias e Avisos Publicados</h3>
+                    <div id="news-management-list">
+                        <p style="text-align: center; color: #718096;">Carregando publicações...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section" style="margin-top: 30px;">
+                <h2>Ações do Sistema</h2>
+                <div class="action-buttons" style="display: flex; justify-content: center; gap: 15px;">
+                    <button onclick="exportData()" style="background-color: #007acc;">Exportar Dados (Backup)</button>
+                    <button onclick="resetAllData()" style="background-color: #e53e3e;">Zerar Todos os Dados</button>
+                    <button onclick="logout()" style="background-color: #4a5568;">Sair</button>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <p>&copy; 2025 Jogos Escolares - Painel Admin</p>
+    </footer>
+
+    
+<script>
+    // 1. CONFIGURAÇÃO E INICIALIZAÇÃO DO FIREBASE 
+    // ATENÇÃO: Se o nome do seu projeto for 'Jogos EEJAM', o projectId abaixo deve ser 'jogos-eejam'.
+    // Use as chaves COMPLETAS geradas pelo seu console Firebase para garantir a conexão.
+    const firebaseConfig = {
+        // SUAS CHAVES ATUAIS QUE VOCÊ COLOCOU:
+        apiKey: "AIzaSyBhZWLKRLPyE3WD8Y7b8iLKE9UCBCkFt1I",
+        authDomain: "jogos-ee.firebaseapp.com",
+        projectId: "jogos-ee",
+        storageBucket: "jogos-ee.firebasestorage.app",
+        messagingSenderId: "297191024035",
+        appId: "1:297191024035:web:f917816f51d4545355a616",
+        measurementId: "G-ZQTCEVM39C"
+    };
+
+    // Inicialização do Firebase Firestore (bd)
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // =========================================================
+    // === VARIÁVEIS E ESTRUTURAS DE DADOS =====================
+    // =========================================================
+    // CORREÇÃO: Alinhando a chave de backup local com o projectId 'jogos-ee'
+    const STORAGE_KEY = 'jogos-ee_backup'; 
+    const CONFIG = {
+        ADMIN_PASSWORD: 'jogos33jam', 
+        AUTO_SAVE: true,
+    };
+
+    const TEAMS = {
+        'futsal-f1-masc': ['6º Ano A', '6º Ano B', '7º Ano A', '7º Ano B'],
+        'futsal-f2-masc': ['8º Ano A', '8º Ano B', '9º Ano A', '9º Ano B'],
+        'futsal-fem': ['Feminino A F', 'Feminino B F'],
+        'futsal-medio-masc': ['1º Ano EMTI', '2º Ano A', '2º Ano EMTI', '3º Ano EMTI'],
+        'futsal-medio-fem': ['9º Ano B Fem', 'Médio Time A', 'Médio Time B'],
+        
+        'basquete-funda': ['Basquete F. A', 'Basquete F. B'],
+        'basquete-medio': ['Basquete M. A', 'Basquete M. B'],
+        
+        'volei-masc': ['Vôlei Masc. A', 'Vôlei Masc. B'],
+        'volei-fem': ['Vôlei Fem. A', 'Vôlei Fem. B']
+    };
+
+    const CATEGORY_MAP = {
+        'futsal-f1-masc': 'Futsal', 'futsal-f2-masc': 'Futsal', 'futsal-fem': 'Futsal',
+        'futsal-medio-masc': 'Futsal', 'futsal-medio-fem': 'Futsal',
+        'basquete-funda': 'Basquete', 'basquete-medio': 'Basquete',
+        'volei-masc': 'Vôlei', 'volei-fem': 'Vôlei'
+    };
+
+    let appState = {
+        isLoggedIn: false,
+        tableData: {}, 
+        matchHistory: [],
+        newsData: { noticias: [], avisos: [] },
+        lastUpdate: null,
+        editingMatchId: null
+    };
+    
+    // =========================================================
+    // === FUNÇÕES DE UTILIDADE E ARMAZENAMENTO ================
+    // =========================================================
+
+    function generateUniqueId() {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+    }
+
+    function getCurrentTimestamp() {
+        return new Date().toLocaleString('pt-BR');
+    }
+
+    function initializeData() {
+        // Inicializa tableData com zeros
+        Object.keys(TEAMS).forEach(category => {
+            appState.tableData[category] = TEAMS[category].map(team => ({
+                team: team, jogos: 0, vitorias: 0, empates: 0, derrotas: 0,
+                golsFeitos: 0, golsSofridos: 0, amarelos: 0, vermelhos: 0,
+                saldoGols: 0, pontos: 0
+            }));
+        });
+    }
+
+    // Salva DADOS LOCAIS e atualiza o timestamp global no Firebase
+    async function autoSave() {
+        if (!CONFIG.AUTO_SAVE) return;
+        
+        appState.lastUpdate = getCurrentTimestamp();
+        const dataToSave = {
+            matchHistory: appState.matchHistory, 
+            newsData: appState.newsData,         
+            lastUpdate: appState.lastUpdate
+        };
+
+        try {
+            // 1. Salva no LocalStorage (para agilidade e fallback)
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+            
+            // 2. Atualiza o timestamp no Firebase (sinalizando para o placar.html que há novos dados)
+            await db.collection("status").doc("status-geral").set({ lastUpdate: appState.lastUpdate });
+
+            logActivity('Data auto-saved successfully and Firebase timestamp updated.');
+            return true;
+        } catch (e) {
+            console.error('Failed to auto-save data:', e);
+            showErrorAlert('Erro ao salvar dados automaticamente.');
+            return false;
+        }
+    }
+
+    async function loadSavedData() {
+        try {
+            // 1. Tenta ler o histórico do Firebase
+            const snapshot = await db.collection("matchHistory").get();
+            appState.matchHistory = snapshot.docs.map(doc => doc.data());
+
+            // 2. Tenta ler as notícias do Firebase
+            const newsDoc = await db.collection("newsData").doc("comunicados").get();
+            if (newsDoc.exists) {
+                appState.newsData = newsDoc.data().newsData || { noticias: [], avisos: [] };
+            }
+
+            // 3. Tenta ler o último status
+            const statusDoc = await db.collection("status").doc("status-geral").get();
+             if (statusDoc.exists) {
+                appState.lastUpdate = statusDoc.data().lastUpdate || null;
+            }
+
+            logActivity('Data loaded successfully from Firebase.');
+            
+        } catch (e) {
+            console.error('Failed to load data from Firebase. Falling back to local storage:', e.message);
+            
+            // Fallback: Se o Firebase falhar, tenta o localStorage
+            const localData = localStorage.getItem(STORAGE_KEY);
+            if (localData) {
+                const data = JSON.parse(localData);
+                appState.matchHistory = data.matchHistory || [];
+                appState.newsData = data.newsData || { noticias: [], avisos: [] };
+                appState.lastUpdate = data.lastUpdate;
+                logActivity('Loaded data from localStorage.');
+            } else {
+                 appState.matchHistory = [];
+                 appState.newsData = { noticias: [], avisos: [] };
+                 logActivity('No data found locally or remotely. Initializing empty arrays.');
+            }
+        }
+    }
+
+    function logActivity(message) {
+        console.log(`[Admin Log: ${getCurrentTimestamp()}] ${message}`);
+    }
+
+    function showSuccessAlert(message) {
+        const alert = document.getElementById('success-alert');
+        alert.textContent = message;
+        alert.classList.add('show');
+        setTimeout(() => { alert.classList.remove('show'); }, 5000);
+    }
+
+    function showErrorAlert(message) {
+        const alert = document.getElementById('error-alert');
+        alert.textContent = message;
+        alert.classList.add('show');
+        setTimeout(() => { alert.classList.remove('show'); }, 5000);
+    }
+
+    // =========================================================
+    // === FUNÇÕES DE CÁLCULO DE CLASSIFICAÇÃO (PARA SALVAR) ===
+    // =========================================================
+
+    function calculateStandingsFromHistory() {
+        initializeData(); 
+        
+        appState.matchHistory.forEach(match => {
+            const categoria = match.categoria;
+            const pontosA = parseInt(match.pontosA);
+            const pontosB = parseInt(match.pontosB);
+            const amarelosA = parseInt(match.amarelosA) || 0;
+            const vermelhosA = parseInt(match.vermelhosA) || 0;
+            const amarelosB = parseInt(match.amarelosB) || 0;
+            const vermelhosB = parseInt(match.vermelhosB) || 0;
+            
+            const categoryData = appState.tableData[categoria];
+            const teamA = categoryData ? categoryData.find(t => t.team === match.timeA) : null;
+            const teamB = categoryData ? categoryData.find(t => t.team === match.timeB) : null;
+
+            if (!teamA || !teamB) return;
+
+            // A. Estatísticas Comuns
+            teamA.jogos += 1;
+            teamB.jogos += 1;
+            teamA.amarelos += amarelosA; teamB.amarelos += amarelosB;
+            teamA.vermelhos += vermelhosA; teamB.vermelhos += vermelhosB;
+            teamA.golsFeitos += pontosA; teamA.golsSofridos += pontosB;
+            teamB.golsFeitos += pontosB; teamB.golsSofridos += pontosA;
+
+            // B. Pontos
+            if (pontosA > pontosB) {
+                teamA.vitorias += 1; teamA.pontos += 3; teamB.derrotas += 1;
+            } else if (pontosB > pontosA) {
+                teamB.vitorias += 1; teamB.pontos += 3; teamA.derrotas += 1;
+            } else {
+                teamA.empates += 1; teamA.pontos += 1; teamB.empates += 1; teamB.pontos += 1;
+            }
+
+            // C. Saldo de Gols
+            teamA.saldoGols = teamA.golsFeitos - teamA.golsSofridos;
+            teamB.saldoGols = teamB.golsFeitos - teamB.golsSofridos;
+        });
+    }
+    
+    // =========================================================
+    // === FUNÇÕES DE LOGIN E UI (ADMIN) =======================
+    // =========================================================
+
+    function login() {
+        const passwordInput = document.getElementById('admin-password').value;
+        if (passwordInput === CONFIG.ADMIN_PASSWORD) {
+            appState.isLoggedIn = true;
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('admin-panel').style.display = 'block';
+            showSuccessAlert('Login realizado com sucesso! Bem-vindo(a).');
+            
+            initApp(); 
+        } else {
+            showErrorAlert('Senha incorreta. Tente novamente.');
+        }
+    }
+
+    function logout() {
+        appState.isLoggedIn = false;
+        document.getElementById('admin-panel').style.display = 'none';
+        document.getElementById('login-screen').style.display = 'block';
+        document.getElementById('admin-password').value = '';
+        showSuccessAlert('Logout realizado.');
+    }
+
+    function handleLoginKeyPress(event) {
+        if (event.key === 'Enter') {
+            login();
+        }
+    }
+
+    function showTab(tabId, button) {
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.style.display = 'none';
+        });
+        document.querySelectorAll('.tabs button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        document.getElementById(tabId).style.display = 'block';
+        button.classList.add('active');
+        
+        if (tabId === 'add-result-tab') {
+            exitEditMode(); 
+        } else if (tabId === 'manage-results-tab') {
+            renderMatchHistoryList();
+        } else if (tabId === 'manage-news-tab') {
+            renderNewsManagementList();
+        }
+    }
+    
+    function populateSelectors() {
+        const categoriaSelect = document.getElementById('categoria-select');
+        categoriaSelect.innerHTML = '<option value="">-- Selecione a Categoria --</option>';
+
+        Object.keys(TEAMS).forEach(categoryKey => {
+            const option = document.createElement('option');
+            option.value = categoryKey;
+            
+            const displayCategory = categoryKey.split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
+            option.textContent = displayCategory;
+            
+            categoriaSelect.appendChild(option);
+        });
+        
+        updateTeamOptions(); 
+    }
+
+    function updateTeamOptions() {
+        const categoria = document.getElementById('categoria-select').value;
+        const timeASelect = document.getElementById('timeA-select');
+        const timeBSelect = document.getElementById('timeB-select');
+        const tipoPartidaInput = document.getElementById('tipo-partida');
+
+        const selectedA = timeASelect.value;
+        const selectedB = timeBSelect.value;
+        
+        timeASelect.innerHTML = '<option value="">-- Time A --</option>';
+        timeBSelect.innerHTML = '<option value="">-- Time B --</option>';
+
+        if (!categoria) {
+            tipoPartidaInput.value = '';
+            return;
+        }
+        
+        tipoPartidaInput.value = CATEGORY_MAP[categoria] || 'Desconhecido';
+
+        const teams = TEAMS[categoria];
+        if (teams) {
+            teams.forEach(team => {
+                const optionA = document.createElement('option');
+                optionA.value = team;
+                optionA.textContent = team;
+                timeASelect.appendChild(optionA);
+
+                const optionB = document.createElement('option');
+                optionB.value = team;
+                optionB.textContent = team;
+                timeBSelect.appendChild(optionB);
+            });
+        }
+        
+        // Restaura as seleções após popular, se ainda forem válidas
+        if (teams && teams.includes(selectedA)) timeASelect.value = selectedA;
+        if (teams && teams.includes(selectedB)) timeBSelect.value = selectedB;
+    }
+    
+    function validateScoreInput(input) {
+        if (input.value < 0) {
+            input.value = 0;
+        }
+    }
+
+    // =========================================================
+    // === FUNÇÕES DE CADASTRO E GERENCIAMENTO DE RESULTADO ====
+    // =========================================================
+    
+    function getFormData() {
+         return {
+            categoria: document.getElementById('categoria-select').value,
+            timeA: document.getElementById('timeA-select').value,
+            timeB: document.getElementById('timeB-select').value,
+            pontosA: parseInt(document.getElementById('pontosA').value) || 0,
+            pontosB: parseInt(document.getElementById('pontosB').value) || 0,
+            amarelosA: parseInt(document.getElementById('amarelosA').value) || 0,
+            amarelosB: parseInt(document.getElementById('amarelosB').value) || 0,
+            vermelhosA: parseInt(document.getElementById('vermelhosA').value) || 0,
+            vermelhosB: parseInt(document.getElementById('vermelhosB').value) || 0,
+        };
+    }
+
+    function validateMatchForm(data) {
+        if (!data.categoria || !data.timeA || !data.timeB || data.timeA === data.timeB) {
+            showErrorAlert('Preencha todos os campos e selecione times diferentes.');
+            return false;
+        }
+        if (data.pontosA < 0 || data.pontosB < 0) {
+            showErrorAlert('Pontuação não pode ser negativa.');
+            return false;
+        }
+        return true;
+    }
+    
+    async function addResult() {
+        const data = getFormData();
+        if (!validateMatchForm(data)) return;
+        
+        const newMatch = {
+            id: generateUniqueId(),
+            timestamp: getCurrentTimestamp(),
+            categoria: data.categoria,
+            modalidade: CATEGORY_MAP[data.categoria],
+            ...data,
+        };
+
+        try {
+            // 1. Salva no Firebase
+            await db.collection("matchHistory").doc(newMatch.id).set(newMatch);
+
+            // 2. Atualiza o estado local e recalcula
+            appState.matchHistory.push(newMatch);
+            calculateStandingsFromHistory(); 
+            await autoSave(); // Atualiza o status de salvamento local e o timestamp global
+
+            showSuccessAlert(`Resultado ${data.timeA} ${data.pontosA} x ${data.pontosB} ${data.timeB} registrado e sincronizado!`);
+            clearForm();
+        } catch (error) {
+            showErrorAlert(`ERRO ao salvar no Firebase. Verifique sua conexão e Regras de Segurança. Detalhes: ${error.message}`);
+            console.error("Erro ao escrever documento: ", error);
+        }
+    }
+    
+    async function deleteMatch(matchId) {
+        if (!confirm('Tem certeza que deseja excluir esta partida? A classificação será recalculada.')) {
+            return;
+        }
+
+        try {
+            // 1. Deleta no Firebase
+            await db.collection("matchHistory").doc(matchId).delete();
+
+            // 2. Remove localmente, recalcula e salva
+            appState.matchHistory = appState.matchHistory.filter(match => match.id !== matchId);
+            calculateStandingsFromHistory();
+            await autoSave();
+            
+            renderMatchHistoryList();
+            showSuccessAlert('Partida excluída e placar sincronizado.');
+        } catch (error) {
+            showErrorAlert(`ERRO ao deletar do Firebase: ${error.message}`);
+            console.error("Erro ao deletar documento: ", error);
+        }
+    }
+    
+    async function saveEditedMatch() {
+        const data = getFormData();
+        if (!validateMatchForm(data)) return;
+
+        const matchIndex = appState.matchHistory.findIndex(m => m.id === appState.editingMatchId);
+        if (matchIndex === -1) {
+            showErrorAlert('Erro: Partida original não encontrada para salvar.');
+            exitEditMode();
+            return;
+        }
+
+        const updatedMatch = {
+            id: appState.editingMatchId,
+            timestamp: getCurrentTimestamp(),
+            categoria: data.categoria,
+            modalidade: CATEGORY_MAP[data.categoria],
+            ...data,
+        };
+
+        try {
+            // 1. Salva a edição no Firebase
+            await db.collection("matchHistory").doc(updatedMatch.id).set(updatedMatch);
+
+            // 2. Atualiza localmente, recalcula e salva
+            appState.matchHistory[matchIndex] = updatedMatch;
+            calculateStandingsFromHistory();
+            await autoSave();
+
+            showSuccessAlert(`Partida editada e salva com sucesso!`);
+            
+            // 3. Sai do modo de edição e limpa
+            exitEditMode();
+            clearForm();
+        } catch (error) {
+             showErrorAlert(`ERRO ao salvar edição no Firebase: ${error.message}`);
+             console.error("Erro ao editar documento: ", error);
+        }
+    }
+
+    function editMatch(matchId) {
+        const match = appState.matchHistory.find(m => m.id === matchId);
+        if (!match) return;
+
+        // 1. Ativa o modo de edição e muda para a aba de cadastro
+        appState.editingMatchId = matchId;
+        document.querySelector('.tabs button').click(); 
+        
+        // 2. Preenche os seletores
+        document.getElementById('categoria-select').value = match.categoria;
+        updateTeamOptions(); 
+        document.getElementById('timeA-select').value = match.timeA;
+        document.getElementById('timeB-select').value = match.timeB;
+        
+        // 3. Preenche os pontos e cartões
+        document.getElementById('pontosA').value = match.pontosA;
+        document.getElementById('pontosB').value = match.pontosB;
+        document.getElementById('amarelosA').value = match.amarelosA;
+        document.getElementById('amarelosB').value = match.amarelosB;
+        document.getElementById('vermelhosA').value = match.vermelhosA;
+        document.getElementById('vermelhosB').value = match.vermelhosB;
+
+        // 4. Altera os botões
+        document.getElementById('register-match-btn').style.display = 'none';
+        document.getElementById('save-edit-btn').style.display = 'inline-block';
+
+        showSuccessAlert(`Editando partida ID: ${matchId}`);
+    }
+
+    function exitEditMode() {
+        appState.editingMatchId = null;
+        document.getElementById('register-match-btn').style.display = 'inline-block';
+        document.getElementById('save-edit-btn').style.display = 'none';
+    }
+    
+    function renderMatchHistoryList() {
+        const listContainer = document.getElementById('match-history-list');
+        listContainer.innerHTML = '';
+        
+        if (appState.matchHistory.length === 0) {
+            listContainer.innerHTML = '<p style="text-align: center; color: #718096; padding: 20px;">Nenhuma partida registrada ainda.</p>';
+            return;
+        }
+
+        const sortedHistory = [...appState.matchHistory].reverse(); 
+
+        sortedHistory.forEach(match => {
+            const item = document.createElement('div');
+            item.className = 'list-item';
+            
+            const teamAName = match.timeA.replace('º Ano', 'º A.').replace('Time', 'T.');
+            const teamBName = match.timeB.replace('º Ano', 'º A.').replace('Time', 'T.');
+            
+            const categoryDisplay = match.categoria.split('-')[0].toUpperCase() + ' - ' + match.categoria.split('-')[1].toUpperCase();
+
+            item.innerHTML = `
+                <div class="item-details">
+                    <strong>${teamAName} <span style="color: ${match.pontosA > match.pontosB ? '#48bb78' : '#e53e3e'}; font-size: 1.2em;">${match.pontosA}</span> vs <span style="color: ${match.pontosB > match.pontosA ? '#48bb78' : '#e53e3e'}; font-size: 1.2em;">${match.pontosB}</span> ${teamBName}</strong>
+                    <span>Modalidade: ${match.modalidade} (${categoryDisplay}) | Cartões: ${match.amarelosA+match.amarelosB} A | ${match.vermelhosA+match.vermelhosB} V</span>
+                    <span style="display: block; margin-top: 5px;">Registrado em: ${match.timestamp}</span>
+                </div>
+                <div class="item-actions">
+                    <button class="btn-edit" onclick="editMatch('${match.id}')">Editar</button>
+                    <button class="btn-delete" onclick="deleteMatch('${match.id}')">Excluir</button>
+                </div>
+            `;
+            listContainer.appendChild(item);
+        });
+    }
+    
+    // =========================================================
+    // === FUNÇÕES DE CADASTRO E GERENCIAMENTO DE NOTÍCIAS =====
+    // =========================================================
+
+    async function publishNews() {
+        const type = document.getElementById('news-type').value;
+        const content = document.getElementById('news-content').value.trim();
+
+        if (!content) {
+            showErrorAlert('O conteúdo da publicação não pode estar vazio.');
+            return;
+        }
+        
+        const newItem = {
+            id: generateUniqueId(),
+            timestamp: getCurrentTimestamp(),
+            text: content
+        };
+
+        if (type === 'noticia') {
+            appState.newsData.noticias.unshift(newItem); 
+        } else {
+            appState.newsData.avisos.unshift(newItem); 
+        }
+
+        try {
+            // Salva as notícias no Firebase (usando um único documento para a coleção newsData)
+            await db.collection("newsData").doc("comunicados").set({ newsData: appState.newsData });
+            await autoSave(); // Atualiza o status local
+
+            document.getElementById('news-content').value = '';
+            showSuccessAlert(`${type === 'noticia' ? 'Notícia' : 'Aviso'} publicado e sincronizado!`);
+            renderNewsManagementList();
+        } catch (error) {
+             showErrorAlert(`ERRO ao publicar no Firebase: ${error.message}`);
+             console.error("Erro ao salvar notícia: ", error);
+        }
+    }
+
+    async function deleteNews(id, type) {
+        if (!confirm(`Tem certeza que deseja excluir este ${type.toLowerCase()}?`)) {
+            return;
+        }
+
+        if (type === 'Notícia') {
+            appState.newsData.noticias = appState.newsData.noticias.filter(n => n.id !== id);
+        } else {
+            appState.newsData.avisos = appState.newsData.avisos.filter(a => a.id !== id);
+        }
+
+        try {
+            await db.collection("newsData").doc("comunicados").set({ newsData: appState.newsData });
+            await autoSave();
+            renderNewsManagementList();
+            showSuccessAlert(`${type} excluído com sucesso!`);
+        } catch (error) {
+            showErrorAlert(`ERRO ao deletar notícia no Firebase: ${error.message}`);
+        }
+    }
+    
+    function renderNewsManagementList() {
+        const listContainer = document.getElementById('news-management-list');
+        listContainer.innerHTML = '';
+        
+        const allItems = [
+            ...appState.newsData.avisos.map(a => ({...a, type: 'Aviso', containerClass: 'avisos-container'})),
+            ...appState.newsData.noticias.map(n => ({...n, type: 'Notícia', containerClass: 'noticias-container'}))
+        ];
+        
+        allItems.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        
+        if (allItems.length === 0) {
+            listContainer.innerHTML = '<p style="text-align: center; color: #718096; padding: 20px;">Nenhuma publicação registrada.</p>';
+            return;
+        }
+        
+        allItems.forEach(item => {
+            const element = document.createElement('div');
+            element.className = 'list-item';
+            
+            element.innerHTML = `
+                <div class="item-details">
+                    <strong style="color: ${item.type === 'Aviso' ? '#d69e2e' : '#007acc'};">[${item.type}]</strong>
+                    <span>${item.text.substring(0, 100)}...</span>
+                    <span style="display: block; margin-top: 5px;">Publicado em: ${item.timestamp}</span>
+                </div>
+                <div class="item-actions">
+                    <button class="btn-edit" onclick="editNews('${item.id}', '${item.type}')">Editar</button>
+                    <button class="btn-delete" onclick="deleteNews('${item.id}', '${item.type}')">Excluir</button>
+                </div>
+            `;
+            listContainer.appendChild(element);
+        });
+    }
+    
+    function clearForm() {
+        document.getElementById('categoria-select').value = '';
+        document.getElementById('timeA-select').innerHTML = '<option value="">-- Time A --</option>';
+        document.getElementById('timeB-select').innerHTML = '<option value="">-- Time B --</option>';
+        document.getElementById('tipo-partida').value = '';
+        document.getElementById('pontosA').value = '0';
+        document.getElementById('pontosB').value = '0';
+        document.getElementById('amarelosA').value = '0';
+        document.getElementById('amarelosB').value = '0';
+        document.getElementById('vermelhosA').value = '0';
+        document.getElementById('vermelhosB').value = '0';
+        
+        exitEditMode(); 
+    }
+    
+    // =========================================================
+    // === FUNÇÕES DE INICIALIZAÇÃO E GERAIS ===================
+    // =========================================================
+
+    function exportData() { /* Funções omitidas para brevidade */ }
+    
+    async function resetAllData() { 
+        if (!confirm('ATENÇÃO: Isso irá DELETAR TODOS OS DADOS (resultados, placar e notícias) permanentemente do FIREBASE. Deseja continuar?')) {
+            return;
+        }
+        
+        try {
+            // 1. Limpar coleções no Firebase
+            const batch = db.batch();
+            const historySnapshot = await db.collection("matchHistory").get();
+            historySnapshot.docs.forEach(doc => batch.delete(doc.ref));
+            await db.collection("newsData").doc("comunicados").delete();
+            await db.collection("status").doc("status-geral").set({ lastUpdate: getCurrentTimestamp() }); // Atualiza status
+            await batch.commit();
+
+            // 2. Limpar localmente
+            localStorage.removeItem(STORAGE_KEY);
+            initializeData();
+            appState.matchHistory = []; 
+            
+            showSuccessAlert('Todos os dados foram resetados do Firebase e localmente.');
+            logout();
+        } catch (e) {
+            showErrorAlert(`ERRO ao resetar o Firebase: ${e.message}`);
+            console.error("Erro ao resetar dados:", e);
+        }
+    }
+    
+    async function initApp() {
+        await loadSavedData();
+        calculateStandingsFromHistory(); 
+        populateSelectors();
+        showTab('add-result-tab', document.querySelector('.tabs button'));
+    }
+
+    window.addEventListener('load', function() {
+        if (!appState.isLoggedIn) {
+             document.getElementById('admin-panel').style.display = 'none';
+             document.getElementById('login-screen').style.display = 'block';
+        }
+        initApp();
+    });
+    
+    window.deleteNews = deleteNews;
+    window.editNews = editNews;
+    window.deleteMatch = deleteMatch;
+    window.editMatch = editMatch;
+    window.saveEditedMatch = saveEditedMatch; 
+    window.login = login;
+    window.logout = logout;
+    window.handleLoginKeyPress = handleLoginKeyPress;
+    window.showTab = showTab;
+    window.updateTeamOptions = updateTeamOptions;
+    window.addResult = addResult;
+    window.clearForm = clearForm;
+    window.publishNews = publishNews;
+    window.exportData = exportData;
+    window.resetAllData = resetAllData;
+    window.validateScoreInput = validateScoreInput;
+</script>
+</body>
+</html>

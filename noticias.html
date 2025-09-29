@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Notícias e Avisos - Jogos Escolares 2025</title>
+  
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+  <style>
+    /* * CSS Unificado e Estrutural (Baseado em index.html) */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      background-color: #f4f8fb;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background-color: #8fd2ff;
+      color: #0055a5;
+      padding: 20px 0;
+      text-align: center;
+    }
+
+    header img {
+      margin-top: 10px;
+    }
+
+    .menu {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+      background-color: #45a8e0;
+      padding: 10px;
+      border-radius: 8px;
+      margin: 15px auto;
+      max-width: 900px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .menu li {
+        margin: 8px 15px;
+    }
+    
+    .menu a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 15px;
+      border-radius: 4px;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    .menu a:hover {
+      background-color: #2c8ec6;
+      transform: scale(1.05);
+    }
+    
+    /* Estilo para o conteúdo principal (Main) */
+    main {
+      padding: 30px 20px;
+      max-width: 1000px;
+      margin: auto;
+      flex: 1;
+      width: 100%;
+    }
+    
+    .info-title {
+        text-align: center; 
+        color:#007acc; 
+        padding: 20px 0;
+    }
+
+    /* Estilos de Seção */
+    section {
+        background-color: #ffffff;
+        padding: 25px;
+        margin-bottom: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    h2 {
+        color: #007acc;
+        font-size: 1.8em;
+        border-bottom: 2px solid #d6ecf8;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+
+    /* RODAPÉ (FOOTER) */
+    footer {
+        text-align: center;
+        padding: 20px;
+        color: white; 
+        margin-top: 40px;
+        background-color: #45a8e0; 
+    }
+    
+    /* ESTILOS ESPECÍFICOS DE NOTÍCIAS (MANTIDOS) */
+    .secao-comunicados {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: white; /* Fundo branco para a seção */
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .comunicado-box {
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+    }
+
+    .noticias-container {
+      background-color: #f0f8ff;
+      border-left: 6px solid #0077cc;
+    }
+
+    .avisos-container {
+      background-color: #fff3cd;
+      border-left: 6px solid #ffa500;
+    }
+
+    .comunicado-box h2 {
+      margin-top: 0;
+      color: #2d3748;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+      font-size: 1.6em;
+    }
+    
+    .comunicado-box ul {
+      padding-left: 0;
+      list-style: none;
+    }
+    
+    .comunicado-box li {
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        line-height: 1.5;
+        border-bottom: 1px dashed #eee;
+        font-size: 1.05em;
+    }
+    
+    .comunicado-box li strong {
+        display: block;
+        color: #718096;
+        font-size: 0.9em;
+        margin-bottom: 5px;
+        font-weight: 400; /* Normal para data/hora */
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <img src="logo.png" alt="Logo do Evento" width="400"/>
+    <nav>
+      <ul class="menu">
+        <li><a href="index.html">Página inicial</a></li>
+        <li><a href="cronograma.html">Cronograma</a></li>
+        <li><a href="placar.html">Placar</a></li>
+        <li><a href="turmas.html">Turmas</a></li>
+        <li><a href="galeria.html">Galeria</a></li>
+        <li><a href="noticias.html">Notícias</a></li>
+        <li><a href="admin.html">Admin</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <div class="info-title">
+      <h1>Notícias e Avisos</h1>
+      <p>Mantenha-se atualizado com os comunicados oficiais e destaques dos jogos.</p>
+    </div>
+    
+    <section class="secao-comunicados">
+      
+      <div class="comunicado-box avisos-container">
+        <h2>Avisos Importantes</h2>
+        <ul id="avisosList">
+          </ul>
+      </div>
+
+      <div class="comunicado-box noticias-container">
+        <h2>Últimas Notícias</h2>
+        <ul id="noticiasList">
+          </ul>
+      </div>
+
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2025 Jogos Escolares - Desenvolvido por: Vitória Dias, Maria Eduarda e Victor</p>
+  </footer>
+
+<script>
+    // 1. CONFIGURAÇÃO FIREBASE (Usando as chaves do seu projeto 'jogos-ee')
+    const firebaseConfig = {
+        apiKey: "AIzaSyBhZWLKRLPyE3WD8Y7b8iLKE9UCBCkFt1I",
+        authDomain: "jogos-ee.firebaseapp.com",
+        projectId: "jogos-ee",
+        storageBucket: "jogos-ee.firebasestorage.app",
+        messagingSenderId: "297191024035",
+        appId: "1:297191024035:web:f917816f51d4545355a616",
+        measurementId: "G-ZQTCEVM39C"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const STORAGE_KEY = 'jogos-ee_backup'; 
+    
+    // 1. Carrega os dados de Notícias e Avisos (PRIORIZA FIREBASE, USA LOCAL STORAGE COMO FALLBACK)
+    async function loadNewsData() {
+        try {
+            // Tenta ler do Firestore
+            const newsDoc = await db.collection("newsData").doc("comunicados").get();
+            if (newsDoc.exists) {
+                const data = newsDoc.data().newsData || { noticias: [], avisos: [] };
+                console.log('Dados de notícias carregados do Firebase.');
+                return data;
+            }
+        } catch (e) {
+            console.error('Falha ao carregar dados do Firebase. Usando Local Storage como fallback:', e.message);
+        }
+        
+        // Fallback: Se o Firebase falhar, tenta o Local Storage (que é atualizado pelo admin.html)
+        try {
+            const savedData = localStorage.getItem(STORAGE_KEY);
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                return data.newsData || { noticias: [], avisos: [] };
+            }
+        } catch (e) {
+            console.error('Falha ao carregar dados do Local Storage:', e);
+        }
+
+        // Retorna a estrutura vazia se tudo falhar
+        return { noticias: [], avisos: [] };
+    }
+
+    // 2. Renderiza as listas de notícias e avisos
+    function renderNews(newsData) {
+        const noticiasList = document.getElementById('noticiasList');
+        const avisosList = document.getElementById('avisosList');
+        
+        const createListItem = (item) => {
+            const li = document.createElement('li');
+            li.innerHTML = `<strong>${item.timestamp}</strong>${item.text}`;
+            return li;
+        };
+
+        // Renderiza Avisos
+        if (newsData.avisos && newsData.avisos.length > 0) {
+            avisosList.innerHTML = '';
+            // Garante que só mostre o número máximo (caso o admin tenha mais que o padrão)
+            newsData.avisos.slice(0, 5).forEach(item => {
+                avisosList.appendChild(createListItem(item));
+            });
+        } else {
+            avisosList.innerHTML = '<li>Nenhum aviso importante publicado.</li>';
+        }
+
+        // Renderiza Notícias
+        if (newsData.noticias && newsData.noticias.length > 0) {
+            noticiasList.innerHTML = '';
+            newsData.noticias.slice(0, 5).forEach(item => {
+                noticiasList.appendChild(createListItem(item));
+            });
+        } else {
+            noticiasList.innerHTML = '<li>Nenhuma notícia publicada ainda.</li>';
+        }
+    }
+
+    // 3. Função principal para atualizar a visualização
+    async function updateNewsView() {
+        const newsData = await loadNewsData();
+        renderNews(newsData);
+    }
+
+    // 4. Configura o Listener para Atualização em Tempo Real (entre abas)
+    function setupStorageListener() {
+        // Isso ainda é útil para sincronizar entre abas no mesmo navegador
+        window.addEventListener('storage', function(e) {
+            if (e.key === STORAGE_KEY && e.newValue) {
+                console.log('Dados de notícias atualizados via evento storage.');
+                updateNewsView();
+            }
+        });
+    }
+
+    // 5. Inicialização
+    window.addEventListener('load', function() {
+        updateNewsView();
+        setupStorageListener();
+        
+        // Adicionar um refresh a cada 10 segundos como fallback e para checar o Firebase
+        setInterval(updateNewsView, 10000); 
+    });
+</script>
+
+</html>

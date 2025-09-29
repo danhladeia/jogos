@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1000" />
+  <title>Jogos Escolares 2025</title>
+  <link rel="stylesheet" href="estilo.css" />
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <meta property="og:title" content="Jogos Interclasse EEJAM 2025 - Do Saber à Ação" />
+  <meta property="og:description" content="Acesse o placar, cronograma e notícias em tempo real dos jogos!" />
+  <meta property="og:image" content="URL_COMPLETA_DA_SUA_IMAGEM_AQUI.jpg" />
+  <meta property="og:url" content="https://jogos-eejam.web.app/index.html" />
+  <meta property="og:type" content="website" />
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="img/1.png">
+
+  <style>
+    /* Oculta o banner de aviso em todos os dispositivos, já que a versão desktop está forçada */
+    .desktop-advice-banner {
+      display: none !important; 
+    }
+
+    /* O bloco abaixo não é mais estritamente necessário para ocultar o banner,
+       mas é mantido para não quebrar outras regras que possam estar aqui */
+    @media (min-width: 900px) {
+        /* Anteriormente: .desktop-advice-banner { display: none; } */
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      background-color: #f4f8fb;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background-color: #8fd2ff;
+      color: #0055a5;
+      padding: 20px 0;
+      text-align: center;
+    }
+
+    header img {
+      margin-top: 10px;
+    }
+
+    .menu {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+      background-color: #45a8e0;
+      padding: 10px;
+      border-radius: 8px;
+      margin: 15px auto;
+      max-width: 900px;
+      flex-wrap: wrap;
+    }
+
+    .menu li {
+      margin: 8px 15px;
+    }
+
+    .menu a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 15px;
+      border-radius: 4px;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    .menu a:hover {
+      background-color: #2c8ec6;
+      transform: scale(1.05);
+    }
+
+    main {
+      padding: 30px 20px;
+      max-width: 1000px;
+      margin: auto;
+      flex: 1;
+      width: 100%;
+    }
+
+    /* Novo estilo para seções */
+    section {
+      background-color: #ffffff;
+      padding: 25px;
+      margin-bottom: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Títulos estilizados */
+    h2 {
+      color: #007acc;
+      font-size: 1.8em;
+      border-bottom: 2px solid #d6ecf8;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+
+    /* Parágrafos */
+    p {
+      font-size: 1.1em;
+      color: #444;
+      line-height: 1.7;
+    }
+
+    /* Destaques com grid */
+    .destaques {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    /* Imagens com hover animado */
+    .destaques img,
+    .destaques video {
+      max-width: 100%;
+      border-radius: 10px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .destaques img:hover,
+    .destaques video:hover {
+      transform: scale(1.03);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    footer {
+      text-align: center;
+      padding: 15px 15px;
+      background-color: #8fd2ff;
+      color: #0055a5;
+    }
+
+    /* Estilos da seção de Regulamento */
+    .regulamento-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      border: 1px solid #d6ecf8;
+      border-radius: 8px;
+      background-color: #f8fbfc;
+      margin-top: 15px;
+    }
+
+    .regulamento-box p {
+      font-size: 1.0em;
+      margin: 0;
+      color: #007acc;
+      font-weight: 600;
+    }
+
+    .btn-regulamento {
+      background-color: #45a8e0;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    .btn-regulamento:hover {
+      background-color: #2c8ec6;
+      transform: scale(1.05);
+    }
+
+    /* Estilos do Modal (Popup) */
+    .modal {
+      display: none;
+      /* Escondido por padrão */
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto;
+      /* 5% do topo e centralizado */
+      padding: 30px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 800px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-content h1 {
+      color: #007acc;
+      border-bottom: 2px solid #d6ecf8;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .modal-content h3 {
+      color: #0055a5;
+      margin-top: 20px;
+      font-size: 1.3em;
+      margin-bottom: 10px;
+    }
+
+    /* Regras de formatação do Regulamento */
+    .modal-content p,
+    .modal-content ul,
+    .modal-content li {
+      text-align: justify;
+      /* Justificado */
+      line-height: 1.5;
+      /* Espaçamento entre linhas de 1.5 */
+      font-size: 1.0em;
+      color: #444;
+    }
+
+    .modal-content p {
+      margin-bottom: 8px;
+      /* Espaçamento entre parágrafos de 8px */
+    }
+
+    /* Fim das Regras de formatação do Regulamento */
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    /* Estilos para Notícias/Avisos */
+    .comunicados-home {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      margin-top: 15px;
+    }
+
+    .aviso-home,
+    .noticia-home {
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .aviso-home {
+      background-color: #fff3cd;
+      /* Amarelo claro para avisos */
+      border-left: 5px solid #ffa500;
+    }
+
+    .noticia-home {
+      background-color: #f0f8ff;
+      /* Azul claro para notícias */
+      border-left: 5px solid #0077cc;
+    }
+
+    .aviso-home h3,
+    .noticia-home h3 {
+      margin-top: 0;
+      font-size: 1.4em;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .aviso-home ul,
+    .noticia-home ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .aviso-home li,
+    .noticia-home li {
+      margin-bottom: 10px;
+      padding-bottom: 5px;
+      border-bottom: 1px dotted #ccc;
+    }
+
+    .aviso-home li:last-child,
+    .noticia-home li:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .data-aviso {
+      display: block;
+      font-size: 0.9em;
+      color: #777;
+      margin-bottom: 5px;
+      font-weight: normal;
+    }
+
+    @media (min-width: 768px) {
+      .comunicados-home {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <img src="logo.png" alt="Logo do Evento" width="400" />
+    <nav>
+      <ul class="menu">
+        <li><a href="index.html">Página inicial</a></li>
+        <li><a href="cronograma.html">Cronograma</a></li>
+        <li><a href="placar.html">Placar</a></li>
+        <li><a href="turmas.html">Turmas</a></li>
+        <li><a href="galeria.html">Galeria</a></li>
+        <li><a href="noticias.html">Notícias</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section>
+      <div class="desktop-advice-banner">
+        Ative a versão para computador para melhor navegação
+      </div>
+
+      <h2>Bem-vindo aos Jogos Escolares 2025</h2>
+      <p>
+        <span style="color: #0055a5; font-weight: bold;">
+          Navegação otimizada para Desktop.
+        </span>
+        Navegue pelo menu acima para conferir o cronograma, placar, turmas participantes, galeria de fotos e vídeos,
+        além das últimas notícias do evento.
+      </p>
+
+
+      <div class="regulamento-box">
+        <p>Acesse o Regulamento Oficial dos Jogos Interclasse EEJAM 2025 para conhecer todas as regras.</p>
+        <button id="openRegulamentoModal" class="btn-regulamento">Ver Regulamento</button>
+      </div>
+
+    </section>
+
+    <section>
+      <h2>Notícias e Avisos Recentes</h2>
+      <div class="comunicados-home">
+        <div class="aviso-home">
+          <h3>Avisos Importantes</h3>
+          <ul id="avisosHomeList">
+            <li>Carregando avisos...</li>
+          </ul>
+        </div>
+        <div class="noticia-home">
+          <h3>Últimas Notícias</h3>
+          <ul id="noticiasHomeList">
+            <li>Carregando notícias...</li>
+          </ul>
+        </div>
+      </div>
+      <p style="text-align: right; margin-top: 15px;"><a href="noticias.html"
+          style="color: #007acc; text-decoration: none; font-weight: bold;">Ver todas as notícias e avisos &raquo;</a>
+      </p>
+    </section>
+
+    <section>
+      <h2>Destaques</h2>
+      <div class="destaques">
+        <img src="img/1.png" alt="Foto destaque">
+        <img src="img/2.png" alt="Foto destaque">
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy;2025 Jogos Escolares - Desenvolvido por: Vitória Dias, Maria Eduarda e Victor</p>
+  </footer>
+
+  <div id="regulamentoModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h1>Regulamento Oficial dos Jogos Interclasse EEJAM 2025</h1>
+      <h2>Do Saber à Ação</h2>
+
+      <h3>Capítulo I – Finalidade e Objetivos</h3>
+      <p><strong>Art. 1º - Introdução e Filosofia:</strong> A Educação Física na Escola Estadual Jesuzinha Araújo
+        Magalhães (EEJAM) visa a formação integral do cidadão (físico, social, político e cognitivo), transcendendo a
+        mera competição. Os Jogos Interclasse EEJAM reafirmam este princípio, unindo o esporte à educação e ao
+        desenvolvimento de habilidades, promovendo a saúde e a ética cidadã.</p>
+      <p><strong>Art. 2º - Finalidade:</strong> Os Jogos Interclasse EEJAM têm por finalidade primordial aumentar a
+        participação da juventude estudantil em atividades desportivas e diversificadas, promovendo a integração social,
+        o exercício da cidadania e a descoberta de "novos talentos" sob a perspectiva do respeito mútuo e do
+        desenvolvimento integral.</p>
+      <p><strong>Art. 3º - Justificativa:</strong> A prática esportiva escolar é um direito constitucional (Art. 217,
+        CF/88) e uma ferramenta essencial para a construção de valores e conceitos. A realização dos Jogos é fundamental
+        para formar cidadãos conscientes e engajados, promovendo o trabalho em equipe, o respeito às regras e o fair
+        play, transformando a escola em um laboratório de práticas saudáveis.</p>
+      <p><strong>Art. 4º - Objetivos Específicos:</strong></p>
+      <ul>
+        <li>Fomentar a prática do esporte com fins educativos.</li>
+        <li>Descobrir e desenvolver talentos e habilidades nas esferas esportiva, cognitiva e intelectual.</li>
+        <li>Contribuir para o desenvolvimento integral do aluno (social, físico/motor, político e cognitivo).</li>
+        <li>Promover o intercâmbio socioesportivo entre alunos, pais, participantes e as comunidades envolvidas.</li>
+        <li>Fomentar a discussão e a aplicação do conhecimento em atividades lúdicas e de raciocínio.</li>
+      </ul>
+
+      <h3>Capítulo II – Da Realização e Modalidades</h3>
+      <p><strong>Art. 5º - Realização:</strong> Os Jogos Interclasse EEJAM são uma ação da Escola Estadual Jesuzinha
+        Araújo Magalhães, sob a responsabilidade da Gestão Escolar e dos Professores de Educação Física.</p>
+      <p><strong>Art. 6º - Modalidades:</strong> Os Jogos abrangem duas categorias principais:</p>
+      <ul>
+        <li><strong>Esportivas:</strong> Atletismo (corrida 400m, Basquetebol, Futsa, Voleibol.</li>
+        <li><strong>Culturais/Intelectuais:</strong> Xadrez, Jogos Digitais, Jogos de Tabuleiro, Quizzes, Torta na Cara,
+          Competições de Lógica, Conhecimentos gerais, Soletrando.</li>
+      </ul>
+
+      <h3>Capítulo III – Das Inscrições e Regras Gerais</h3>
+      <p><strong>Art. 7º - Participação:</strong> Serão elegíveis todos os alunos regularmente matriculados e
+        frequentando a EEJAM. A participação será organizada por turmas/séries.<br>
+        § 1º: Para a participação nas modalidades esportivas, é necessário que o aluno tenha entregue o termo de
+        autorização dos pais/responsáveis para a prática.</p>
+      <p><strong>Art. 8º - Regras Oficiais:</strong></p>
+      <ul>
+        <li>As modalidades Esportivas serão regidas pelas Regras Oficiais das Confederações Brasileiras, com as
+          adaptações de tempo de jogo e número de atletas definidas pela Comissão Organizadora.</li>
+        <li>As modalidades Culturais/Intelectuais terão seus formatos de competição e critérios de pontuação detalhados
+          em regulamentos específicos.</li>
+      </ul>
+      <p><strong>Art. 9º - Inscrição e Representação:</strong> Cada turma deverá inscrever suas equipes até o prazo
+        final estipulado pela Comissão Organizadora.</p>
+      <p><strong>Art. 10º - Compromisso de Presença:</strong> Uma vez inscrito em qualquer modalidade (Esportiva,
+        Cultural ou Intelectual), o aluno assume o compromisso de comparecer e participar da disputa no dia e horário
+        estipulados na Tabela Oficial de Jogos.</p>
+      <ul>
+        <li>§ 1º: A ausência não justificada de um aluno inscrito, quando a equipe ou a Comissão Organizadora julgar que
+          houve prejuízo comprovado para o time ou para a logística da competição (exemplo: falta de número mínimo de
+          atletas em esportes coletivos), poderá gerar sanção.</li>
+        <li>§ 2º: A equipe que se sentir prejudicada pela ausência de um membro deverá formalizar a queixa à Comissão
+          Organizadora imediatamente após a disputa.</li>
+        <li>§ 3º: A Comissão Disciplinar analisará o caso e, se comprovado o prejuízo e a ausência sem justificativa,
+          poderá aplicar as sanções previstas no Art. 20º, que podem variar de Advertência Verbal ao aluno ausente até a
+          Perda Parcial de Pontos na Classificação Geral para a turma/série do aluno, bem como a não participação em
+          jogos posteriores, anos subsequentes ou outros eventos da escola.</li>
+      </ul>
+
+      <h3>Capítulo IV – Da Pontuação e Premiação</h3>
+      <p><strong>Art. 11º - Pontuação Geral:</strong> Será estabelecida uma tabela única de pontuação para o ranking
+        geral. As turmas/séries acumularão pontos por colocação em todas as modalidades (esportivas e intelectuais),
+        visando valorizar o desenvolvimento integral.</p>
+      <p><strong>Art. 12º - Classificação Final:</strong></p>
+      <ul>
+        <li>A turma/série com a maior pontuação total ao final de todas as disputas será declarada Campeã Geral dos
+          Jogos Interclasse EEJAM - Do Saber à Ação.</li>
+        <li>§ 1º: Para o Nível Ensino Médio Masculino, o campeão será definido através de uma disputa final a ser
+          realizada entre o 1º e o 2º colocado no ranking geral de pontuação acumulada do Nível Ensino Médio Masculino.
+        </li>
+      </ul>
+      <p><strong>Art. 13º - Premiação:</strong> Serão entregues troféus e/ou medalhas às equipes classificadas nas
+        primeiras posições de cada modalidade e, principalmente, à turma/série Campeã Geral.</p>
+
+      <h3>Capítulo V – Dos Poderes e Responsabilidades</h3>
+      <p><strong>Art. 14º - Estrutura de Poderes:</strong> A gestão dos Jogos será exercida pelas seguintes instâncias:
+        Comissão de Honra, Comissão Organizadora e Comissão Disciplinar.</p>
+      <p><strong>Art. 15º - Comissão Organizadora:</strong> Composta por Professores de Educação Física, Matemática,
+        Especialistas, Direção e Vice-direção, será responsável pela logística de jogos, tabelas, organização, abertura,
+        e julgamento, bem como pela disponibilização de recursos e solicitação de apoio (PM e técnico em enfermagem).
+      </p>
+      <p><strong>Art. 16º - Comissão Disciplinar:</strong> Composta pelas Especialistas, Direção, Vice-direção e membros
+        da Comissão Organizadora, caberá a esta a aplicação imediata de sanções disciplinares, em função de infrações
+        cometidas antes, durante e após as disputas.</p>
+
+      <h3>Capítulo VI – Das Sanções e Disciplina</h3>
+      <p><strong>Art. 17º - Conduta e Fair Play:</strong> O respeito mútuo, a ética cidadã e o fair play são
+        obrigatórios e inegociáveis. Qualquer atitude de indisciplina, agressão (física ou verbal) ou desrespeito à
+        integridade de qualquer participante, árbitro ou membro da Comissão será punida.</p>
+      <p><strong>Art. 18º - Infrações:</strong> Constituem infrações graves, entre outras:</p>
+      <ul>
+        <li>Agressão ou ofensa a membros das Comissões, professores, árbitros, adversários ou público.</li>
+        <li>Uso de linguagem ou gestos obscenos.</li>
+        <li>Tentativa de fraude nas regras.</li>
+        <li>Qualquer forma de coerção ou ameaça para influenciar resultados.</li>
+      </ul>
+      <p><strong>Art. 19º - Apostas e Atividades Financeiras:</strong> É estritamente proibida a promoção, participação
+        ou intermediação de qualquer tipo de aposta ou atividade de natureza financeira (incluindo, mas não se limitando
+        a, "bolões", sorteios com fins lucrativos ou qualquer troca de dinheiro/bens baseada nos resultados dos jogos)
+        que envolva alunos ou o público presente.</p>
+      <ul>
+        <li>§ 1º: A constatação de qualquer aluno ou equipe envolvida em apostas ou atividades financeiras relacionadas
+          aos Jogos Interclasse resultará em punição imediata pela Comissão Disciplinar.</li>
+        <li>§ 2º: A punição poderá incluir a suspensão imediata do aluno e/ou a Perda de Pontos na Classificação Geral
+          para a equipe a que o aluno pertencer, independentemente de outras sanções aplicáveis.</li>
+      </ul>
+      <p><strong>Art. 20º - Sanções Aplicáveis:</strong> A Comissão Disciplinar poderá aplicar, conforme a gravidade da
+        falta, o histórico do infrator e o prejuízo causado:</p>
+      <ul>
+        <li>Advertência Verbal.</li>
+        <li>Advertência por Escrito (com notificação aos responsáveis).</li>
+        <li>Perda de Pontos na Classificação Geral (total ou parcial).</li>
+        <li>Suspensão Temporária do aluno infrator dos Jogos.</li>
+        <li>Eliminação da equipe da modalidade ou dos Jogos Interclasse.</li>
+        <li>Restrição de participação em jogos posteriores, eventos escolares ou interclasses em anos subsequentes
+          (aplicável a alunos reincidentes ou em casos de extrema gravidade/prejuízo).</li>
+      </ul>
+      <p><strong>Art. 21º - Casos Omissos:</strong> Os casos não previstos neste Regulamento serão resolvidos pela
+        Coordenação Técnica-Geral em conjunto com a Comissão Organizadora.</p>
+    </div>
+  </div>
+
+  <script>
+    // Configuração do Modal (Regulamento)
+    const modal = document.getElementById("regulamentoModal");
+    const btn = document.getElementById("openRegulamentoModal");
+    const span = document.getElementsByClassName("close")[0];
+
+    btn.onclick = function () {
+      modal.style.display = "block";
+      document.body.style.overflow = 'hidden'; // Evita a rolagem do fundo
+    }
+
+    span.onclick = function () {
+      modal.style.display = "none";
+      document.body.style.overflow = 'auto'; // Restaura a rolagem
+    }
+
+    window.onclick = function (event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+        document.body.style.overflow = 'auto';
+      }
+    }
+
+    // =========================================================
+    // === FIREBASE E ATUALIZAÇÃO DE NOTÍCIAS/AVISOS =========
+    // =========================================================
+
+    // 1. CONFIGURAÇÃO FIREBASE
+    const firebaseConfig = {
+      apiKey: "AIzaSyBhZWLKRLPyE3WD8Y7b8iLKE9UCBCkFt1I",
+      authDomain: "jogos-ee.firebaseapp.com",
+      projectId: "jogos-ee",
+      storageBucket: "jogos-ee.firebasestorage.app",
+      messagingSenderId: "297191024035",
+      appId: "1:297191024035:web:f917816f51d4545355a616",
+      measurementId: "G-ZQTCEVM39C"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const STORAGE_KEY = 'jogos-ee_backup';
+
+    // 2. Carrega os dados de Notícias e Avisos
+    async function loadNewsData() {
+      try {
+        const newsDoc = await db.collection("newsData").doc("comunicados").get();
+        if (newsDoc.exists) {
+          return newsDoc.data().newsData || { noticias: [], avisos: [] };
+        }
+      } catch (e) {
+        console.error('Falha ao carregar dados do Firebase. Tentando Local Storage:', e.message);
+      }
+
+      // Fallback: Tenta o Local Storage
+      try {
+        const savedData = localStorage.getItem(STORAGE_KEY);
+        if (savedData) {
+          const data = JSON.parse(savedData);
+          return data.newsData || { noticias: [], avisos: [] };
+        }
+      } catch (e) {
+        console.error('Falha ao carregar dados do Local Storage:', e);
+      }
+
+      return { noticias: [], avisos: [] };
+    }
+
+    // 3. Renderiza as listas na Home
+    function renderNewsHome(newsData) {
+      const noticiasList = document.getElementById('noticiasHomeList');
+      const avisosList = document.getElementById('avisosHomeList');
+
+      const createListItem = (item) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="data-aviso">${item.timestamp}</span>${item.text}`;
+        return li;
+      };
+
+      // Renderiza Avisos (Máximo 3)
+      if (newsData.avisos && newsData.avisos.length > 0) {
+        avisosList.innerHTML = '';
+        newsData.avisos.slice(0, 3).forEach(item => {
+          avisosList.appendChild(createListItem(item));
+        });
+      } else {
+        avisosList.innerHTML = '<li>Nenhum aviso recente.</li>';
+      }
+
+      // Renderiza Notícias (Máximo 3)
+      if (newsData.noticias && newsData.noticias.length > 0) {
+        noticiasList.innerHTML = '';
+        newsData.noticias.slice(0, 3).forEach(item => {
+          noticiasList.appendChild(createListItem(item));
+        });
+      } else {
+        noticiasList.innerHTML = '<li>Nenhuma notícia recente.</li>';
+      }
+    }
+
+    // 4. Função principal de atualização
+    async function updateHomeView() {
+      const newsData = await loadNewsData();
+      renderNewsHome(newsData);
+    }
+
+    // 5. Inicialização e Atualização Periódica
+    window.addEventListener('load', function () {
+      updateHomeView();
+      // Atualiza a cada 10 segundos para buscar novas informações do Firebase
+      setInterval(updateHomeView, 10000);
+    });
+
+  </script>
+
+</body>
+
+</html>
