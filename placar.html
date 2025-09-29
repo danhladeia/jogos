@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Placar e Classificação</title>
 
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-
+  
   <style>
     /* Estilos unificados do index.html e placar.html */
     * {
@@ -496,6 +494,9 @@
   </footer>
 
   <script>
+
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-analytics.js";
     // 1. CONFIGURAÇÃO E INICIALIZAÇÃO DO FIREBASE (CORRIGIDO)
     const firebaseConfig = {
     apiKey: "AIzaSyCRakqwGgSmxCSYH1MDxexhwQQYov3hJ-M",
@@ -785,3 +786,4 @@
 </body>
 
 </html>
+
