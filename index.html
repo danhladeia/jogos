@@ -7,8 +7,7 @@
   <title>Jogos Escolares 2025</title>
   <link rel="stylesheet" href="estilo.css" />
 
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
   <meta property="og:title" content="Jogos Interclasse EEJAM 2025 - Do Saber à Ação" />
   <meta property="og:description" content="Acesse o placar, cronograma e notícias em tempo real dos jogos!" />
   <meta property="og:image" content="URL_COMPLETA_DA_SUA_IMAGEM_AQUI.jpg" />
@@ -532,6 +531,9 @@
   </div>
 
   <script>
+
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-analytics.js";
     // Configuração do Modal (Regulamento)
     const modal = document.getElementById("regulamentoModal");
     const btn = document.getElementById("openRegulamentoModal");
@@ -652,3 +654,4 @@
 
 
 </html>
+
