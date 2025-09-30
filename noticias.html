@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Notícias e Avisos - Jogos Escolares 2025</title>
   
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-
-  <style>
+    <style>
     /* * CSS Unificado e Estrutural (Baseado em index.html) */
     * {
       box-sizing: border-box;
@@ -211,21 +208,26 @@
   </footer>
 
 <script>
-    // 1. CONFIGURAÇÃO FIREBASE (Usando as chaves do seu projeto 'jogos-ee')
-    const firebaseConfig = {
-        apiKey: "AIzaSyBhZWLKRLPyE3WD8Y7b8iLKE9UCBCkFt1I",
-        authDomain: "jogos-ee.firebaseapp.com",
-        projectId: "jogos-ee",
-        storageBucket: "jogos-ee.firebasestorage.app",
-        messagingSenderId: "297191024035",
-        appId: "1:297191024035:web:f917816f51d4545355a616",
-        measurementId: "G-ZQTCEVM39C"
-    };
+   // Import the functions you need from the SDKs you need
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-analytics.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js"; // <-- NOVO: Importa o Firestore
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+// 1. CONFIGURAÇÃO FIREBASE
+const firebaseConfig = {
+  apiKey: "AIzaSyAjZe9JtmUkWelWMVM-DdgEL6JKZj4NWes",
+  authDomain: "interclasse-eejam.firebaseapp.com",
+  projectId: "interclasse-eejam",
+  storageBucket: "interclasse-eejam.firebasestorage.app",
+  messagingSenderId: "336399247397",
+  appId: "1:336399247397:web:4d5191fe7761ef507ab7cc",
+  measurementId: "G-4K38T21Z44"
+};
 
-    const STORAGE_KEY = 'jogos-ee_backup'; 
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app); // <-- NOVO: Inicializa a variável 'db' para o Firestore
     
     // 1. Carrega os dados de Notícias e Avisos (PRIORIZA FIREBASE, USA LOCAL STORAGE COMO FALLBACK)
     async function loadNewsData() {
@@ -315,5 +317,6 @@
         setInterval(updateNewsView, 10000); 
     });
 </script>
+
 
 </html>
