@@ -406,24 +406,26 @@
     
 <script>
 
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-analytics.js";
-    // 1. CONFIGURAÇÃO E INICIALIZAÇÃO DO FIREBASE 
-    // ATENÇÃO: Se o nome do seu projeto for 'Jogos EEJAM', o projectId abaixo deve ser 'jogos-eejam'.
-    // Use as chaves COMPLETAS geradas pelo seu console Firebase para garantir a conexão.
-    const firebaseConfig = {
-    apiKey: "AIzaSyCRakqwGgSmxCSYH1MDxexhwQQYov3hJ-M",
-    authDomain: "interclasse-4b24b.firebaseapp.com",
-    projectId: "interclasse-4b24b",
-    storageBucket: "interclasse-4b24b.firebasestorage.app",
-    messagingSenderId: "730939186397",
-    appId: "1:730939186397:web:c6b4ede1ab3a0f1a24cf34",
-    measurementId: "G-PBB7FQHY6F"
-  };
+ // Import the functions you need from the SDKs you need
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-analytics.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js"; // <-- NOVO: Importa o Firestore
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
+// 1. CONFIGURAÇÃO FIREBASE
+const firebaseConfig = {
+  apiKey: "AIzaSyAjZe9JtmUkWelWMVM-DdgEL6JKZj4NWes",
+  authDomain: "interclasse-eejam.firebaseapp.com",
+  projectId: "interclasse-eejam",
+  storageBucket: "interclasse-eejam.firebasestorage.app",
+  messagingSenderId: "336399247397",
+  appId: "1:336399247397:web:4d5191fe7761ef507ab7cc",
+  measurementId: "G-4K38T21Z44"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app); // <-- NOVO: Inicializa a variável 'db' para o Firestore
 
     // =========================================================
     // === VARIÁVEIS E ESTRUTURAS DE DADOS =====================
@@ -1099,5 +1101,6 @@
 </body>
 
 </html>
+
 
 
