@@ -532,8 +532,9 @@
 
   <script>
 
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-analytics.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-analytics.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js"; // <-- NOVO: Importa o Firestore
     // Configuração do Modal (Regulamento)
     const modal = document.getElementById("regulamentoModal");
     const btn = document.getElementById("openRegulamentoModal");
@@ -562,21 +563,20 @@
 
     // 1. CONFIGURAÇÃO FIREBASE
     const firebaseConfig = {
-    apiKey: "AIzaSyCRakqwGgSmxCSYH1MDxexhwQQYov3hJ-M",
-    authDomain: "interclasse-4b24b.firebaseapp.com",
-    projectId: "interclasse-4b24b",
-    storageBucket: "interclasse-4b24b.firebasestorage.app",
-    messagingSenderId: "730939186397",
-    appId: "1:730939186397:web:c6b4ede1ab3a0f1a24cf34",
-    measurementId: "G-PBB7FQHY6F"
-  };
+  apiKey: "AIzaSyAjZe9JtmUkWelWMVM-DdgEL6JKZj4NWes",
+  authDomain: "interclasse-eejam.firebaseapp.com",
+  projectId: "interclasse-eejam",
+  storageBucket: "interclasse-eejam.firebasestorage.app",
+  messagingSenderId: "336399247397",
+  appId: "1:336399247397:web:4d5191fe7761ef507ab7cc",
+  measurementId: "G-4K38T21Z44"
+};
 
   // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app); // <-- NOVO: Inicializa a variável 'db' para o Firestore
     
-
-    const STORAGE_KEY = 'jogos-ee_backup';
 
     // 2. Carrega os dados de Notícias e Avisos
     async function loadNewsData() {
@@ -654,4 +654,5 @@
 
 
 </html>
+
 
